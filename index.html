@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Servicios | Clixcopylaser</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fuentes Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Iconos FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            primary: '#1e40af',
+                            accent: '#3b82f6',
+                            light: '#f8fafc'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Open Sans', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #f8fafc; }
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-color: #3b82f6;
+        }
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Header Compacto -->
+    <header class="bg-brand-dark text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-[1400px] mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <img class="h-8 w-auto bg-white rounded p-0.5" src="logo.png" onerror="this.src='https://placehold.co/100x40?text=CLIX'" alt="Logo">
+                    <div>
+                        <h1 class="font-heading font-bold text-lg tracking-wide leading-none">CLIXCOPYLASER</h1>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-widest">Portal Interno</p>
+                    </div>
+                </div>
+
+                <!-- Buscador en Header para ahorrar espacio -->
+                <div class="flex-grow max-w-md mx-4 hidden sm:block">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Buscar herramienta (ej: SRI, IESS)..." 
+                            class="w-full py-1.5 pl-9 pr-4 rounded bg-slate-800 border border-slate-700 text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:bg-slate-900 transition-all placeholder-gray-500">
+                        <div class="absolute top-0 left-0 mt-2 ml-3 text-gray-500">
+                            <i class="fas fa-search text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-xs font-light opacity-80 hidden md:block">
+                    <span id="date-display"></span>
+                </div>
+            </div>
+            <!-- Buscador Móvil -->
+            <div class="pb-3 sm:hidden">
+                <input type="text" id="searchInputMobile" placeholder="Buscar..." class="w-full py-1.5 px-3 rounded bg-slate-800 border border-slate-700 text-sm text-white">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-4 sm:p-6 bg-gray-50">
+        <div class="max-w-[1400px] mx-auto">
+            
+            <div class="flex justify-between items-end mb-4">
+                <h2 class="text-xl font-heading font-bold text-slate-700 border-l-4 border-brand-primary pl-3">Herramientas Operativas</h2>
+                <span class="text-xs text-gray-400" id="tool-count">Cargando recursos...</span>
+            </div>
+
+            <!-- Grid Compacto: hasta 5 columnas en pantallas grandes -->
+            <div id="links-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+                <!-- Cards generadas por JS -->
+            </div>
+
+            <!-- Mensaje No Resultados -->
+            <div id="no-results" class="hidden text-center py-10">
+                <div class="text-4xl text-gray-300 mb-2"><i class="fas fa-search"></i></div>
+                <p class="text-gray-500">No encontramos esa herramienta.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Simple -->
+    <footer class="bg-white border-t border-gray-200 py-4 mt-auto">
+        <div class="max-w-[1400px] mx-auto px-4 text-center">
+            <p class="text-gray-400 text-xs">© 2025 Clixcopylaser - Panel de Control Unificado</p>
+        </div>
+    </footer>
+
+    <script>
+        // ==========================================
+        // LISTA DE ENLACES (15 Items)
+        // ==========================================
+        const tools = [
+            {
+                title: "SRI en Línea",
+                desc: "Facturación, RUC y estado tributario.",
+                url: "https://srienlinea.sri.gob.ec/sri-en-linea/inicio/NAT",
+                icon: "fa-file-invoice-dollar",
+                color: "text-blue-600",
+                img: "https://placehold.co/400x200/1e40af/ffffff?text=SRI",
+                cat: "Tributario"
+            },
+            {
+                title: "Registro Civil",
+                desc: "Turnos cédulas y pasaportes.",
+                url: "https://apps.registrocivil.gob.ec/portalCiudadano/index.jsf",
+                icon: "fa-id-card",
+                color: "text-cyan-600",
+                img: "https://placehold.co/400x200/0891b2/ffffff?text=Reg+Civil",
+                cat: "Identidad"
+            },
+            {
+                title: "IESS Portal",
+                desc: "Afiliados, historia laboral y citas.",
+                url: "https://www.iess.gob.ec/",
+                icon: "fa-heartbeat",
+                color: "text-red-600",
+                img: "https://placehold.co/400x200/dc2626/ffffff?text=IESS",
+                cat: "Salud"
+            },
+            {
+                title: "Contraloría",
+                desc: "Servicios y certificados en línea.",
+                url: "https://www.contraloria.gob.ec/Portal/ServiciosEnLinea",
+                icon: "fa-balance-scale",
+                color: "text-slate-600",
+                img: "https://placehold.co/400x200/475569/ffffff?text=Contraloria",
+                cat: "Certificados"
+            },
+            {
+                title: "Récord Policial",
+                desc: "Certificados de antecedentes penales.",
+                url: "https://certificados.ministeriodelinterior.gob.ec/gestorcertificados/antecedentes/",
+                icon: "fa-shield-alt",
+                color: "text-blue-800",
+                img: "https://placehold.co/400x200/1e3a8a/ffffff?text=Antecedentes",
+                cat: "Legal"
+            },
+            {
+                title: "Consulta Multas",
+                desc: "ANT y tránsito nacional.",
+                url: "https://www.ant.gob.ec", 
+                icon: "fa-car",
+                color: "text-yellow-600",
+                img: "https://placehold.co/400x200/ca8a04/ffffff?text=ANT",
+                cat: "Tránsito" 
+                // Nota: Mantuve este genérico o puedes reemplazar con uno específico de tu lista si faltó
+            },
+            {
+                title: "Impedimento Laboral",
+                desc: "Ministerio de Trabajo - Sector Público.",
+                url: "https://calculadoras.trabajo.gob.ec/impedimento",
+                icon: "fa-user-slash",
+                color: "text-orange-600",
+                img: "https://placehold.co/400x200/ea580c/ffffff?text=Impedimento",
+                cat: "Laboral"
+            },
+            {
+                title: "Encuentra Empleo",
+                desc: "Bolsa de empleo Socio Empleo.",
+                url: "https://encuentraempleo.trabajo.gob.ec/socioEmpleo-war/paginas/index.jsf",
+                icon: "fa-briefcase",
+                color: "text-purple-600",
+                img: "https://placehold.co/400x200/9333ea/ffffff?text=Empleo",
+                cat: "Laboral"
+            },
+            {
+                title: "Docs. Extraviados",
+                desc: "Función Judicial - Formulario.",
+                url: "https://appsj.funcionjudicial.gob.ec/documentosExtraviados/publico/formulario.jsf",
+                icon: "fa-file-alt",
+                color: "text-gray-600",
+                img: "https://placehold.co/400x200/64748b/ffffff?text=Extraviados",
+                cat: "Legal"
+            },
+            {
+                title: "SICOSEP",
+                desc: "Ministerio del Interior - Empresas.",
+                url: "https://sicosep.ministeriodelinterior.gob.ec/empresas/mdi/mdig/mdi1",
+                icon: "fa-building-shield",
+                color: "text-indigo-600",
+                img: "https://placehold.co/400x200/4f46e5/ffffff?text=SICOSEP",
+                cat: "Seguridad"
+            },
+            {
+                title: "Cert. No Baja",
+                desc: "Certificado de baja policial.",
+                url: "https://certificados.ministeriodelinterior.gob.ec/gestorcertificados/dnobaja/",
+                icon: "fa-user-shield",
+                color: "text-blue-900",
+                img: "https://placehold.co/400x200/172554/ffffff?text=No+Baja",
+                cat: "Policial"
+            },
+            {
+                title: "AGROCALIDAD",
+                desc: "Sistema SIFAE.",
+                url: "https://sifae.agrocalidad.gob.ec/SIFAE/#/login",
+                icon: "fa-leaf",
+                color: "text-green-600",
+                img: "https://placehold.co/400x200/16a34a/ffffff?text=Agrocalidad",
+                cat: "Agro"
+            },
+            {
+                title: "Perseo App",
+                desc: "Sistema contable y facturación.",
+                url: "https://perseo.app/",
+                icon: "fa-laptop-code",
+                color: "text-blue-500",
+                img: "https://placehold.co/400x200/3b82f6/ffffff?text=Perseo",
+                cat: "Sistema"
+            },
+            {
+                title: "Mi Negocio Efectivo",
+                desc: "Plataforma de recargas y cobros.",
+                url: "https://www.minegocioefectivo.com/#/autenticacion",
+                icon: "fa-coins",
+                color: "text-yellow-500",
+                img: "https://placehold.co/400x200/eab308/ffffff?text=Mi+Negocio",
+                cat: "Ventas"
+            },
+            {
+                title: "Remove BG",
+                desc: "Quitar fondo de imágenes.",
+                url: "https://www.remove.bg/es",
+                icon: "fa-magic",
+                color: "text-gray-700",
+                img: "https://placehold.co/400x200/525252/ffffff?text=RemoveBG",
+                cat: "Diseño"
+            },
+            {
+                title: "Pinterest",
+                desc: "Ideas e inspiración visual.",
+                url: "https://www.pinterest.com/",
+                icon: "fa-pinterest",
+                color: "text-red-500",
+                img: "https://placehold.co/400x200/ef4444/ffffff?text=Pinterest",
+                cat: "Diseño"
+            }
+        ];
+
+        // ==========================================
+        // LÓGICA DE RENDERIZADO
+        // ==========================================
+        const container = document.getElementById('links-container');
+        const searchInput = document.getElementById('searchInput');
+        const searchInputMobile = document.getElementById('searchInputMobile');
+        const noResults = document.getElementById('no-results');
+        const toolCount = document.getElementById('tool-count');
+
+        // Fecha
+        const d = new Date();
+        document.getElementById('date-display').textContent = d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
+
+        function renderCards(filterText = '') {
+            container.innerHTML = '';
+            let count = 0;
+            const term = filterText.toLowerCase();
+
+            tools.forEach(tool => {
+                if (tool.title.toLowerCase().includes(term) || 
+                    tool.desc.toLowerCase().includes(term) ||
+                    tool.cat.toLowerCase().includes(term)) {
+                    
+                    count++;
+                    const card = document.createElement('a');
+                    card.href = tool.url;
+                    card.target = "_blank";
+                    // Diseño de carta compacta
+                    card.className = 'group bg-white rounded-lg border border-gray-200 overflow-hidden card-hover transition-all duration-200 flex flex-col relative text-left';
+                    
+                    card.innerHTML = `
+                        <!-- Etiqueta Categoría -->
+                        <span class="absolute top-2 right-2 bg-slate-800/80 backdrop-blur text-[10px] text-white px-1.5 py-0.5 rounded z-10 font-semibold tracking-wide">
+                            ${tool.cat}
+                        </span>
+                        
+                        <!-- Imagen Compacta (h-24) -->
+                        <div class="h-24 overflow-hidden relative bg-gray-100">
+                             <img src="${tool.img}" alt="${tool.title}" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500">
+                        </div>
+
+                        <!-- Contenido Compacto -->
+                        <div class="p-3 flex flex-col flex-grow">
+                            <div class="flex items-start justify-between mb-1">
+                                <h3 class="font-heading font-bold text-sm text-slate-700 group-hover:text-brand-primary leading-tight line-clamp-1">${tool.title}</h3>
+                                <i class="fas ${tool.icon} ${tool.color} text-sm ml-2 mt-0.5"></i>
+                            </div>
+                            <p class="text-[11px] text-gray-500 leading-snug line-clamp-2">${tool.desc}</p>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                }
+            });
+
+            toolCount.textContent = `${count} herramientas disponibles`;
+            
+            if (count === 0) noResults.classList.remove('hidden');
+            else noResults.classList.add('hidden');
+        }
+
+        // Event Listeners
+        searchInput.addEventListener('input', (e) => renderCards(e.target.value));
+        searchInputMobile.addEventListener('input', (e) => renderCards(e.target.value));
+
+        // Iniciar
+        renderCards();
+    </script>
+</body>
+</html>
+
+
